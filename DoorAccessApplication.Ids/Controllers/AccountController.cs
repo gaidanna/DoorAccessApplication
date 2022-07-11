@@ -1,5 +1,6 @@
 ﻿using DoorAccessApplication.Ids.Interfaces;
 using DoorAccessApplication.Ids.Models;
+using DoorAccessApplication.Model;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Plain.RabbitMQ;
 using System.Security.Claims;
 
 namespace DoorAccessApplication.Ids.Controllers
@@ -21,6 +24,7 @@ namespace DoorAccessApplication.Ids.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IPublisher _publisher;
 
         public AccountController(
 
@@ -30,7 +34,8 @@ namespace DoorAccessApplication.Ids.Controllers
             IClientStore clientStore,
             ILogger<AccountController> logger,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IPublisher publisher)
         {
             _loginService = loginService;
             _interaction = interaction;
@@ -38,6 +43,7 @@ namespace DoorAccessApplication.Ids.Controllers
             _logger = logger;
             _userManager = userManager;
             _configuration = configuration;
+            _publisher = publisher;
         }
 
         /// <summary>
@@ -274,6 +280,14 @@ namespace DoorAccessApplication.Ids.Controllers
                     // If we got this far, something failed, redisplay form
                     return View(model);
                 }
+
+                _publisher.Publish(JsonConvert.SerializeObject(new UserRequest
+                {
+                    Id = model.User.Id,
+                    LastName = model.User.LastName,
+                    Name = model.User.Name,
+                    Email = model.Email,
+                }), "identity.created", null);
             }
 
             if (returnUrl != null)

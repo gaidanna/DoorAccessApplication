@@ -1,11 +1,16 @@
 using DoorAccessApplication.Ids;
 using DoorAccessApplication.Ids.Certificate;
 using DoorAccessApplication.Ids.Interfaces;
+using DoorAccessApplication.Ids.Listeners;
 using DoorAccessApplication.Ids.Models;
 using DoorAccessApplication.Ids.Persistence;
 using DoorAccessApplication.Ids.Services;
+using DoorAccessApplication.Model;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Plain.RabbitMQ;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +29,6 @@ builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-//builder.Services.AddControllersWithViews();
 builder.Services.AddIdentityServer()
     .AddAspNetIdentity<ApplicationUser>()
     .AddSigningCredential(Certificate.Get())
@@ -32,6 +36,21 @@ builder.Services.AddIdentityServer()
     .AddInMemoryIdentityResources(Config.IdentityResources)
     .AddInMemoryApiResources(Config.ApiResources)
     .AddInMemoryApiScopes(Config.ApiScopes);
+
+//builder.Services.AddHttpClient("identity", config =>
+//                config.BaseAddress = new System.Uri("https://localhost:7242/"));
+
+builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider("amqp://guest:guest@localhost:5672"));
+builder.Services.AddSingleton<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),
+        "identity_exchange",
+        ExchangeType.Topic));
+builder.Services.AddSingleton<ISubscriber>(x => new Subscriber(x.GetService<IConnectionProvider>(),
+    "user_exchange",
+    "user_response",
+    "user.response",
+    ExchangeType.Topic));
+
+builder.Services.AddHostedService<DoorAccessResponseListener>();
 
 var app = builder.Build();
 
@@ -63,6 +82,15 @@ app.UseEndpoints(endpoints =>
     endpoints.MapDefaultControllerRoute();
     endpoints.MapControllers();
 });
+
+//var bus = Bus.Factory.CreateUsingRabbitMq(config =>
+//{
+//    config.Host("");
+//    config.ReceiveEndpoint("temp-queue", c =>
+//    {
+//        c.Handler<User>(ctx => { });
+//    });
+//});
 
 //app.MapControllerRoute(
 //    name: "default",

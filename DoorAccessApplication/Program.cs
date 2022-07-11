@@ -1,21 +1,22 @@
 using DoorAccessApplication.Api;
 using DoorAccessApplication.Api.Filters;
+using DoorAccessApplication.Api.Listeners;
 using DoorAccessApplication.Core;
 using DoorAccessApplication.Core.Interfaces;
+using DoorAccessApplication.Core.Services;
 using DoorAccessApplication.Infrastructure;
 using DoorAccessApplication.Infrastructure.Persistence;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Plain.RabbitMQ;
+using RabbitMQ.Client;
 using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
 AddServicesToContainer(builder);
-
-
-
 
 var app =     builder.Build();
 
@@ -37,7 +38,7 @@ app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dataContext = scope.ServiceProvider.GetRequiredService<LockDbContext>();
+    var dataContext = scope.ServiceProvider.GetRequiredService<DoorAccessDbContext>();
     dataContext.Database.Migrate();
 }
 
@@ -48,10 +49,12 @@ app.Run();
 
 void AddServicesToContainer(WebApplicationBuilder builder)
 {
-
+    builder.Services.AddScoped<ILockService, LockService>();
+    builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<ILockRepository, LockRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-    builder.Services.AddDbContext<LockDbContext>(options =>
+    builder.Services.AddDbContext<DoorAccessDbContext>(options =>
         options.UseSqlServer(builder.Configuration["DbConnectionString"]));
 
     builder.Services.AddControllers(options =>
@@ -64,6 +67,9 @@ void AddServicesToContainer(WebApplicationBuilder builder)
             s.DisableDataAnnotationsValidation = true;
         });
     builder.Services.AddEndpointsApiExplorer();
+
+    ConfigureBusService(builder.Services);
+    
     builder.Services.AddSwaggerGen(options =>
     {
         options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -88,9 +94,8 @@ void AddServicesToContainer(WebApplicationBuilder builder)
 
     ConfigureAuthService(builder.Services);
 
-    ConfigureBusService(builder.Services);
-
     builder.Services.AddAutoMapper(typeof(ApiAssemblyMarker), typeof(ICoreAssemblyMarker));
+    
 }
 
 
@@ -116,6 +121,16 @@ void ConfigureAuthService(IServiceCollection services)
 
 void ConfigureBusService(IServiceCollection services)
 {
-   
+    services.AddSingleton<IConnectionProvider>(new ConnectionProvider("amqp://guest:guest@localhost:5672"));
+    services.AddSingleton<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),
+            "user_exchange",
+            ExchangeType.Topic));
+    services.AddSingleton<ISubscriber>(x => new Subscriber(x.GetService<IConnectionProvider>(),
+        "identity_exchange",
+        "identity_response",
+        "identity.created",
+        ExchangeType.Topic));
+
+    services.AddHostedService<UserCreatedListener>();
 }
 

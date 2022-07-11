@@ -18,12 +18,17 @@
     <PackageReference Include="FluentValidation" Version="11.1.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.1.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
     <ProjectReference Include="..\DoorAccessApplication.Ids\DoorAccessApplication.Ids.csproj" />
+    <ProjectReference Include="..\DoorAccessApplication.Infrastructure\DoorAccessApplication.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

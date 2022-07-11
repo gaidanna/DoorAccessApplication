@@ -9,15 +9,15 @@
 
     string partialView;
 
-    if (returnUrl[0].Contains("client_id=js"))
-    {
-        Layout = "_Layout-SPA";
-        partialView = "_RegisterPartial-SPA.cshtml";
-    }
-    else
-    {
+    //if (returnUrl[0].Contains("client_id=js"))
+    //{
+    //    Layout = "_Layout-SPA";
+    //    partialView = "_RegisterPartial-SPA.cshtml";
+    //}
+    //else
+    //{
         partialView = "_RegisterPartial-MVC.cshtml";
-    }
+    //}
 
 }
 

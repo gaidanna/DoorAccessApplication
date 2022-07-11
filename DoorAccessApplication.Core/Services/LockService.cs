@@ -21,7 +21,7 @@ namespace DoorAccessApplication.Core.Services
             catch (DbUpdateException)
             {
                 throw new EntityAddForbiddenException
-                    ($"Connector cannot be added.");
+                    ($"Lock cannot be added.");
             }
         }
 
@@ -50,7 +50,7 @@ namespace DoorAccessApplication.Core.Services
             catch (DbUpdateException)
             {
                 throw new EntityUpdateForbiddenException
-                    ($"Group with id {updateLock.Id} cannot be updated.");
+                    ($"Lock with id {updateLock.Id} cannot be updated.");
             }
         }
     }

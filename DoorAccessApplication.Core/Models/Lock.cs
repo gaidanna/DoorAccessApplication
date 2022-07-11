@@ -3,7 +3,6 @@
     public class Lock
     {
         public int Id { get; set; }
-        List<User> Users { get; set; } = new List<User>();
-        
+        public List<User> Users { get; set; } = new List<User>();
     }
 }

@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace DoorAccessApplication.Infrastructure
 {
-    public class LockDbContext : DbContext
+    public class DoorAccessDbContext : DbContext
     {
-        public LockDbContext(DbContextOptions<LockDbContext> options)
+        public DoorAccessDbContext(DbContextOptions<DoorAccessDbContext> options)
         : base(options)
         {
         }
 
         public DbSet<Lock> Locks { get; set; }
+
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         }

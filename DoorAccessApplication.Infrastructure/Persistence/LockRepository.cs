@@ -12,8 +12,8 @@ namespace DoorAccessApplication.Infrastructure.Persistence
     public class LockRepository : ILockRepository
     {
 
-        private readonly LockDbContext _dbContext;
-        public LockRepository(LockDbContext dbContext)
+        private readonly DoorAccessDbContext _dbContext;
+        public LockRepository(DoorAccessDbContext dbContext)
         {
             _dbContext = dbContext;
         }
