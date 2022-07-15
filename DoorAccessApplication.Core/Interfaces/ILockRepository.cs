@@ -9,10 +9,10 @@ namespace DoorAccessApplication.Core.Interfaces
 {
     public interface ILockRepository
     {
-        Task<Lock> CreateAsync(Lock lockTool);
-        Task<Lock> UpdateAsync(Lock lockTool);
-        Task DeleteAsync(Lock lockTool);
-        Task<Lock> GetAsync(int id);
-        Task<List<Lock>> GetAllAsync();
+        Task<Lock> AddAsync(Lock createLock);
+        Task<Lock> UpdateAsync(Lock updateLock);
+        Task DeleteAsync(Lock deleteLock);
+        Task<List<Lock>> GetAllAsync(string userId);
+        Task<Lock> GetAsync(int lockId, string userId);
     }
 }

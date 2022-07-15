@@ -9,26 +9,19 @@ using System.Threading.Tasks;
 
 namespace DoorAccessApplication.Infrastructure.Persistence
 {
-    public class UserRepository : IUserRepository
+    public class LockHistoryRepository : ILockHistoryRepository
     {
         private readonly DoorAccessDbContext _dbContext;
-        public UserRepository(DoorAccessDbContext dbContext)
+        public LockHistoryRepository(DoorAccessDbContext dbContext)
         {
             _dbContext = dbContext;
         }
-
-        public async Task<User> CreateAsync(User user)
+        public async Task<List<LockHistoryEntry>> GetHistoryAsync(int lockId, string userId)
         {
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-
-            return user;
-        }
-        public async Task<User> GetAsync(string email)
-        {
-            return await _dbContext.Users
+            return await _dbContext.LockHistoryEntries
+                .Where( a => a.LockId == lockId && a.UserId == userId)
                 .AsNoTracking()
-                .FirstAsync(e => e.Email == email);
+                .ToListAsync();
         }
     }
 }

@@ -10,5 +10,6 @@ namespace DoorAccessApplication.Core.Interfaces
     public interface IUserRepository
     {
         Task<User> CreateAsync(User user);
+        Task<User> GetAsync(string email);
     }
 }

@@ -19,10 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model", "Model", "{FF411035
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DoorAccessApplication.Model", "DoorAccessApplication.Model\DoorAccessApplication.Model.csproj", "{252257D2-0D37-4AA9-9560-38B04EA7E1FA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RabbitMQ", "RabbitMQ", "{62509075-469E-4CD3-B7FC-5FDA03BD2AC8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQProducer", "RabbitMQProducer\RabbitMQProducer.csproj", "{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,10 +45,6 @@ Global
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,7 +55,6 @@ Global
 		{F0A2700B-6AA3-41D4-B043-F22033B1B48A} = {0864BD12-38E2-4DF6-BF9D-0513776B202C}
 		{AC3EEB6A-D006-4836-93E7-7414F8D8E945} = {17189860-893B-4019-8909-4DBCEF1A1804}
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA} = {FF411035-F014-49A0-AB26-8BAACE758CB2}
-		{5250F9F8-FB83-4E4C-9D72-6E8DE5778D55} = {62509075-469E-4CD3-B7FC-5FDA03BD2AC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {35714DB6-3799-47D1-9616-67D3A0E19477}

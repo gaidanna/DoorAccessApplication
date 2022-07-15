@@ -82,7 +82,12 @@ namespace DoorAccessApplication.Ids
           };
         public static IEnumerable<ApiResource> ApiResources => new[]
         {
-            new ApiResource("lockAccess", "My API")
+            new ApiResource()
+            {
+                Name = "lockAccess",
+                Description = "My API",
+                Scopes = new List<string> { "lockAccess" },
+            }
           //new ApiResource("weatherapi")
           //{
           //  Scopes = new List<string> {"weatherapi.read", "weatherapi.write"},
@@ -122,6 +127,9 @@ namespace DoorAccessApplication.Ids
 
                     AllowedScopes =
                     {
+                      IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "lockAccess"
                     }
                 },

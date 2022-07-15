@@ -17,6 +17,8 @@ namespace DoorAccessApplication.Infrastructure
 
         public DbSet<Lock> Locks { get; set; }
 
+        public DbSet<LockHistoryEntry> LockHistoryEntries { get; set; }
+
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

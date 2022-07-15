@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace DoorAccessApplication.Core.Interfaces
 {
-    public interface IUserService
+    public interface ILockHistoryRepository
     {
-        Task<User> CreateAsync(User user);
+        Task<List<LockHistoryEntry>> GetHistoryAsync(int lockId, string userId);
     }
 }
