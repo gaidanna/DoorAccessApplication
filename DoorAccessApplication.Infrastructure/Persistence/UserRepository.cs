@@ -24,11 +24,17 @@ namespace DoorAccessApplication.Infrastructure.Persistence
 
             return user;
         }
-        public async Task<User> GetAsync(string email)
+        public async Task<User> GetAsync(string userId)
         {
             return await _dbContext.Users
-                .AsNoTracking()
-                .FirstAsync(e => e.Email == email);
+                //.AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == userId);
+        }
+        public async Task<User> GetByEmailAsync(string email)
+        {
+            return await _dbContext.Users
+                //.AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Email == email);
         }
     }
 }

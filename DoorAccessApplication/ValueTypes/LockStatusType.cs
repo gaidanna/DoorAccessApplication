@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DoorAccessApplication.Core.ValueTypes
+namespace DoorAccessApplication.Api.ValueTypes
 {
-    public enum StatusType
+    public enum LockStatusType
     {
         Added,
         Removed,
         Opened,
-        Closed
+        Closed,
     }
 }

@@ -14,5 +14,6 @@ namespace DoorAccessApplication.Core.Interfaces
         Task DeleteAsync(Lock deleteLock);
         Task<List<Lock>> GetAllAsync(string userId);
         Task<Lock> GetAsync(int lockId, string userId);
+        Task<bool> IsExistAsync(string uniqueIdentifier);
     }
 }

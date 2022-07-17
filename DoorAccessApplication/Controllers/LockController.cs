@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using DoorAccessApplication.Api.Models;
+using DoorAccessApplication.Api.ValueTypes;
 using DoorAccessApplication.Core.Interfaces;
 using DoorAccessApplication.Core.Models;
+using DoorAccessApplication.Core.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace DoorAccessApplication.Api.Controllers
 {
@@ -25,19 +29,20 @@ namespace DoorAccessApplication.Api.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost(Name = "Add lock")]
         public async Task<IActionResult> AddAsync(CreateLockRequest createLockRequest)
         {
             var lockTool = _mapper.Map<Lock>(createLockRequest);
 
-            var lockResult = await _lockService.AddAsync(lockTool, GetUserId());
+            var addedlock = await _lockService.AddAsync(lockTool, GetUserId());
 
-            _logger.LogInformation($"Lock with Id: {lockResult.Id} added.");
+            var lockResponse = _mapper.Map<LockResponse>(addedlock);
+            _logger.LogInformation($"Lock with Id: {lockResponse.Id} added.");
 
-            return Ok(lockResult);
+            return Ok(lockResponse);
         }
 
-        [HttpDelete("{lockId}")]
+        [HttpDelete("{lockId}", Name = "Remove lock")]
         public async Task<IActionResult> RemoveAsync(int lockId)
         {
             await _lockService.DeleteAsync(lockId, GetUserId());
@@ -47,49 +52,59 @@ namespace DoorAccessApplication.Api.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet(Name = "Get all locks")]
         public async Task<ActionResult<List<Lock>>> GetAllAsync()
         {
             var lockTools = await _lockService.GetAllAsync(GetUserId());
+            var lockResponse = _mapper.Map<List<LockResponse>>(lockTools);
 
-            return Ok(lockTools);
+            return Ok(lockResponse);
         }
 
 
-        [HttpGet("{lockId}")]
+        [HttpGet("{lockId}", Name = "Get lock")]
         public async Task<ActionResult<Lock>> GetAsync(int lockId)
         {
-            var lockTool = await _lockService.GetAsync(lockId, GetUserId());
+            var lockTools = await _lockService.GetAsync(lockId, GetUserId());
+            var locksResponse = _mapper.Map<LockWithUsersResponse>(lockTools);
 
-            return Ok(lockTool);
+            return Ok(locksResponse);
         }
 
         //incorrect path, update
-        [HttpPut("users/{lockId}")]
+        [HttpPut("users/{lockId}", Name = "Add user to lock")]
         public async Task<IActionResult> AddUserAsync(int lockId, AddUserInLockRequest addRequest)
         {
-            var lockResult = await _lockService.AddUserAsync(lockId, GetUserId(), addRequest.Email);
+            var lockTool = await _lockService.AddUserAsync(lockId, GetUserId(), addRequest.Email);
 
-            _logger.LogInformation($"User was added to lock with Id: {lockResult.Id}.");
+            var lockResponse = _mapper.Map<LockWithUsersResponse>(lockTool);
 
-            return Ok(lockResult);
+            _logger.LogInformation($"User was added to lock with Id: {lockResponse.Id}.");
+
+            return Ok(lockResponse);
         }
 
-        [HttpPut("{lockId}")]
+        [HttpPut("{lockId}", Name = "Remove user to lock")]
         public async Task<IActionResult> RemoveUserAsync(int lockId, RemoveUserInLockRequest removeRequest)
         {
-            var lockResult = await _lockService.RemoveUserAsync(lockId, GetUserId(), removeRequest.Email);
+            var lockTool = await _lockService.RemoveUserAsync(lockId, GetUserId(), removeRequest.Email);
 
-            _logger.LogInformation($"User was added to lock with Id: {lockResult.Id}.");
+            var lockResponse = _mapper.Map<LockWithUsersResponse>(lockTool);
 
-            return Ok(lockResult);
+            _logger.LogInformation($"User was added to lock with Id: {lockResponse.Id}.");
+
+            return Ok(lockResponse);
         }
 
-        [HttpPut("actions/{lockId}")]
-        public async Task<IActionResult> UpdateActionAsync(int lockId)
+        [HttpPut("actions/{lockId}", Name = "Change lock status")]
+        public async Task<IActionResult> UpdateStatusAsync(int lockId, string status)
         {
-            var lockResult = await _lockService.UpdateStatusAsync(lockId, GetUserId());
-            if(lockResult.IsLocked)
+            //var updatedStatusType = _mapper.Map<StatusType>(statusType);
+            var lockTool = await _lockService.UpdateStatusAsync(lockId, GetUserId(), status);
+
+            var lockResponse = _mapper.Map<LockResponse>(lockTool);
+
+            if(lockResponse.IsLocked)
             {
                 _logger.LogInformation($"User closed the lock with Id: {lockId}.");
             }
@@ -98,21 +113,21 @@ namespace DoorAccessApplication.Api.Controllers
                 _logger.LogInformation($"User opened the lock with Id: {lockId}.");
             }
 
-            return Ok(lockResult);
+            return Ok(lockResponse);
         }
 
-        [HttpGet("history/{lockId}")]
-        public async Task<ActionResult<LockHistoryEntry>> ShowHistoryAsync(int lockId)
+        [HttpPut("history/{lockId}", Name = "Get lock history")]
+        public async Task<ActionResult<List<LockHistoryEntryResponse>>> GetHistoryAsync(int lockId)
         {
             var lockHistoryEntries = await _lockService.GetHistoryAsync(lockId, GetUserId());
 
-            return Ok(lockHistoryEntries);
-        }
+            var lockHistoryEntriesResponse = _mapper.Map<List<LockHistoryEntryResponse>>(lockHistoryEntries);
 
+            return Ok(lockHistoryEntriesResponse);
+        }
 
         private string GetUserId()
         {
-            //return "0271ac86-7ba2-40f4-ac6d-cb3bc173b3aa";
             return User.Claims.First(i => i.Type == "UserId").Value;
         }
     }

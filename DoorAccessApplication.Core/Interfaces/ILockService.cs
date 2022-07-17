@@ -1,4 +1,5 @@
 ﻿using DoorAccessApplication.Core.Models;
+using DoorAccessApplication.Core.ValueTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace DoorAccessApplication.Core.Interfaces
         Task<Lock> GetAsync(int lockId, string userId);
         Task<Lock> AddUserAsync(int lockId, string userId, string emailToAdd);
         Task<Lock> RemoveUserAsync(int lockId, string userId, string emailToAdd);
-        Task<Lock> UpdateStatusAsync(int lockId, string userId);
+        Task<Lock> UpdateStatusAsync(int lockId, string userId, string status);
         Task<List<LockHistoryEntry>> GetHistoryAsync(int lockId, string userId);
     }
 }

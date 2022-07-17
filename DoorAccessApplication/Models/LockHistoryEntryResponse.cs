@@ -1,13 +1,8 @@
 ﻿using DoorAccessApplication.Core.ValueTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DoorAccessApplication.Core.Models
+namespace DoorAccessApplication.Api.Models
 {
-    public class LockHistoryEntry
+    public class LockHistoryEntryResponse
     {
         public int Id { get; set; }
         public int LockId { get; set; }
@@ -16,7 +11,6 @@ namespace DoorAccessApplication.Core.Models
         public DateTime DateTime { get; set; }
 
         // create/delete/open/close Action
-        public StatusType Status { get; set; }
-
+        public string Status { get; set; }
     }
 }

@@ -11,5 +11,6 @@ namespace DoorAccessApplication.Core.Interfaces
     {
         Task<User> CreateAsync(User user);
         Task<User> GetAsync(string email);
+        Task<User> GetByEmailAsync(string email);
     }
 }

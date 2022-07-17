@@ -1,11 +1,6 @@
 ﻿using DoorAccessApplication.Core.Interfaces;
 using DoorAccessApplication.Core.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoorAccessApplication.Infrastructure.Persistence
 {
@@ -42,18 +37,29 @@ namespace DoorAccessApplication.Infrastructure.Persistence
 
         public async Task<List<Lock>> GetAllAsync(string userId)
         {
-            return await _dbContext.Locks
-                .Include(e => e.Users.Where(e => e.Id == userId))
+            //var result = new List<Lock>();
+            var locks = await _dbContext.Locks
+                .Where(e => e.Users.Any(l => l.Id == userId))
+                .Include(e => e.Users)
                 .AsNoTracking()
                 .ToListAsync();
+
+            return locks;
         }
 
         public async Task<Lock> GetAsync(int lockId, string userId)
         {
             return await _dbContext.Locks
-                .Include(e => e.Users.Where(e => e.Id == userId))
-                .AsNoTracking()
-                .FirstAsync(e => e.Id == lockId);
+                .Include(e => e.Users)
+                //.AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == lockId && e.Users.Any(l => l.Id == userId));
+        }
+
+        public async Task<bool> IsExistAsync(string uniqueIdentifier)
+        {
+            var result = await _dbContext.Locks
+                .FirstOrDefaultAsync(e => e.UniqueIdentifier == uniqueIdentifier);
+            return result != null;
         }
     }
 }

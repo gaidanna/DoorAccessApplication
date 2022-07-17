@@ -6,6 +6,7 @@ using DoorAccessApplication.Ids.Models;
 using DoorAccessApplication.Ids.Persistence;
 using DoorAccessApplication.Ids.Services;
 using DoorAccessApplication.Model;
+using IdentityServer4.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,17 +26,20 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddTransient<ILoginService<ApplicationUser>, EFLoginService>();
 
+
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddIdentityServer()
-    .AddAspNetIdentity<ApplicationUser>()
     .AddSigningCredential(Certificate.Get())
+    .AddAspNetIdentity<ApplicationUser>()
     .AddInMemoryClients(Config.Clients)
     .AddInMemoryIdentityResources(Config.IdentityResources)
     .AddInMemoryApiResources(Config.ApiResources)
     .AddInMemoryApiScopes(Config.ApiScopes);
+
+builder.Services.AddTransient<IProfileService, ProfileService>();
 
 //builder.Services.AddHttpClient("identity", config =>
 //                config.BaseAddress = new System.Uri("https://localhost:7242/"));

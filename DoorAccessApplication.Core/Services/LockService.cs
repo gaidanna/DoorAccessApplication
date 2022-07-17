@@ -1,4 +1,5 @@
 ﻿using DoorAccessApplication.Core.Exceptions;
+using DoorAccessApplication.Core.Extensions;
 using DoorAccessApplication.Core.Interfaces;
 using DoorAccessApplication.Core.Models;
 using DoorAccessApplication.Core.ValueTypes;
@@ -24,9 +25,24 @@ namespace DoorAccessApplication.Core.Services
         {
             var user = await _userRepository.GetAsync(userId);
             if (user == null)
-                throw new Exception();
+            {
+                throw new EntityAddForbiddenException("User does not exist.");
+            }
+
+            if(await _lockRepository.IsExistAsync(createLock.UniqueIdentifier))
+            {
+                throw new EntityAddForbiddenException("Lock already registered.");
+            }
 
             createLock.Users.Add(user);
+            var historyEntry = new LockHistoryEntry()
+            {
+                DateTime = DateTime.UtcNow,
+                UserId = userId,
+                Status = StatusType.Added
+            };
+
+            createLock.HistoryEntries.Add(historyEntry);
             try
             {
                 return await _lockRepository.AddAsync(createLock);
@@ -34,13 +50,26 @@ namespace DoorAccessApplication.Core.Services
             catch (DbUpdateException)
             {
                 throw new EntityAddForbiddenException
-                    ("Lock cannot be added.");
+                    ("Lock cannot be added to database.");
             }
         }
 
         public async Task DeleteAsync(int lockId, string userId)
         {
             var deleteLock = await _lockRepository.GetAsync(lockId, userId);
+            if (deleteLock == null)
+            {
+                throw new EntityDeleteForbiddenException("Lock does not exist.");
+            }
+
+            var historyEntry = new LockHistoryEntry()
+            {
+                DateTime = DateTime.UtcNow,
+                UserId = userId,
+                Status = StatusType.Removed
+            };
+
+            deleteLock.HistoryEntries.Add(historyEntry);
 
             await _lockRepository.DeleteAsync(deleteLock);
         }
@@ -52,8 +81,16 @@ namespace DoorAccessApplication.Core.Services
 
         public async Task<Lock> AddUserAsync(int lockId, string userId, string emailToAdd)
         {
-            var user = await _userRepository.GetAsync(emailToAdd);
+            var user = await _userRepository.GetByEmailAsync(emailToAdd);
+            if (user == null)
+            {
+                throw new EntityAddForbiddenException("User does not exist.");
+            }
             var lockTool = await _lockRepository.GetAsync(lockId, userId);
+            if (lockTool == null)
+            {
+                throw new EntityAddForbiddenException("Lock does not exist.");
+            }
 
             lockTool.Users.Add(user);
 
@@ -62,10 +99,18 @@ namespace DoorAccessApplication.Core.Services
 
         public async Task<Lock> RemoveUserAsync(int lockId, string userId, string emailToAdd)
         {
-            var user = await _userRepository.GetAsync(emailToAdd);
+            var user = await _userRepository.GetByEmailAsync(emailToAdd);
+            if (user == null)
+            {
+                throw new EntityAddForbiddenException("User does not exist.");
+            }
             var lockTool = await _lockRepository.GetAsync(lockId, userId);
+            if (lockTool == null)
+            {
+                throw new EntityAddForbiddenException("Lock does not exist.");
+            }
 
-            lockTool.Users.Add(user);
+            lockTool.Users.Remove(user);
 
             return await _lockRepository.UpdateAsync(lockTool);
         }
@@ -76,9 +121,20 @@ namespace DoorAccessApplication.Core.Services
             return await _lockRepository.GetAsync(lockId, userId);
         }
 
-        public async Task<Lock> UpdateStatusAsync(int lockId, string userId)
+        public async Task<Lock> UpdateStatusAsync(int lockId, string userId, string status)
         {
+            var newStatus = status.GetStatus();
+            
             var lockTool = await _lockRepository.GetAsync(lockId, userId);
+            if (lockTool == null)
+            {
+                throw new EntityAddForbiddenException("Lock does not exist.");
+            }
+
+            if (newStatus == lockTool.Status)
+            {
+                throw new EntityUpdateForbiddenException("Cannot set the same status."); 
+            }
             lockTool.IsLocked = lockTool.IsLocked != true;
 
             lockTool.HistoryEntries.Add(new LockHistoryEntry()
@@ -86,7 +142,7 @@ namespace DoorAccessApplication.Core.Services
                 UserId = userId,
                 LockId = lockId,
                 DateTime = DateTime.Now,
-                Status = lockTool.IsLocked ? StatusType.Close : StatusType.Open
+                Status = newStatus
             });
 
             return await _lockRepository.UpdateAsync(lockTool);

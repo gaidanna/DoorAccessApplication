@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Plain.RabbitMQ;
 using RabbitMQ.Client;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,14 +68,14 @@ void AddServicesToContainer(WebApplicationBuilder builder)
     builder.Services.AddDbContext<DoorAccessDbContext>(options =>
         options.UseSqlServer(builder.Configuration["DbConnectionString"]));
 
-    builder.Services.AddControllers(options =>
-    {
-        options.Filters.Add<UnhandledExceptionFilterAttribute>();
-    }).AddFluentValidation(s =>
-        {
-            s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
-            s.DisableDataAnnotationsValidation = true;
-        });
+    //builder.Services.AddControllers(options =>
+    //{
+    //    options.Filters.Add<UnhandledExceptionFilterAttribute>();
+    //}).AddFluentValidation(s =>
+    //    {
+    //        s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
+    //        s.DisableDataAnnotationsValidation = true;
+    //    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
@@ -99,7 +100,19 @@ void AddServicesToContainer(WebApplicationBuilder builder)
     });
 
     ConfigureAuthService(builder.Services);
-    
+
+    builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<UnhandledExceptionFilterAttribute>();
+    })
+    .AddFluentValidation(s =>
+    {
+        s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
+        s.DisableDataAnnotationsValidation = true;
+    })
+    .AddJsonOptions(x => 
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
     ConfigureBusService(builder.Services);
 
     builder.Services.AddScoped<ILockService, LockService>();

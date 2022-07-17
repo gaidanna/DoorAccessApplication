@@ -253,10 +253,11 @@ namespace DoorAccessApplication.Ids.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            var errors = ModelState
-    .Where(x => x.Value.Errors.Count > 0)
-    .Select(x => new { x.Key, x.Value.Errors })
-    .ToArray();
+                    var errors = ModelState
+            .Where(x => x.Value.Errors.Count > 0)
+            .Select(x => new { x.Key, x.Value.Errors })
+            .ToArray();
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser
@@ -287,10 +288,10 @@ namespace DoorAccessApplication.Ids.Controllers
 
                 _publisher.Publish(JsonConvert.SerializeObject(new UserRequest
                 {
-                    Id = model.User.Id,
-                    LastName = model.User.LastName,
-                    Name = model.User.Name,
-                    Email = model.Email,
+                    Id = user.Id,
+                    LastName = user.LastName,
+                    Name = user.Name,
+                    Email = user.Email,
                 }), "identity.created", null);
             }
 

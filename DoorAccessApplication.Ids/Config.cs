@@ -121,18 +121,24 @@ namespace DoorAccessApplication.Ids
                     ClientName = "Swagger UI",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
+                    AlwaysIncludeUserClaimsInIdToken = true,
 
                     RedirectUris = { $"https://localhost:7224/swagger/oauth2-redirect.html" },
                     PostLogoutRedirectUris = { $"https://localhost:7224/swagger/" },
 
                     AllowedScopes =
                     {
-                      IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "lockAccess"
                     }
                 },
+              new Client
+                {
+                    ClientId = "company",
+                    ClientSecrets = new [] { new Secret("test".Sha512()) },
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,//.ResourceOwnerPasswordAndClientCredentials,
+                    AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, "lockAccess" },
+                    AlwaysIncludeUserClaimsInIdToken = true,
+              }
         //// m2m client credentials flow client
         //    new Client
         //    {
