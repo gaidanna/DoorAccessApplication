@@ -1,4 +1,6 @@
-﻿using DoorAccessApplication.Model;
+﻿using DoorAccessApplication.Ids.Models;
+using DoorAccessApplication.Model;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Plain.RabbitMQ;
 
@@ -7,9 +9,12 @@ namespace DoorAccessApplication.Ids.Listeners
     public class DoorAccessResponseListener : IHostedService
     {
         private readonly ISubscriber _subscriber;
-        public DoorAccessResponseListener(ISubscriber subscriber)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public DoorAccessResponseListener(ISubscriber subscriber, 
+            UserManager<ApplicationUser> userManager)
         {
             _subscriber = subscriber;
+            _userManager = userManager;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -27,8 +32,7 @@ namespace DoorAccessApplication.Ids.Listeners
             var response = JsonConvert.DeserializeObject<UserResponse>(message);
             if (!response.IsSuccess)
             {
-                //delete user
-                //orderDeletor.Delete(response.OrderId).GetAwaiter().GetResult();
+                //delete user here
             }
             return true;
         }

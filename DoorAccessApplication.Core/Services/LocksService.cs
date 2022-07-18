@@ -160,7 +160,7 @@ namespace DoorAccessApplication.Core.Services
                 throw new EntityUpdateForbiddenException("This status does not exist.");
             }
 
-            if (myStatus.ToString() == "open" || myStatus.ToString() == "close")
+            if (myStatus.ToString() != "open" && myStatus.ToString() != "close")
             {
                 throw new EntityUpdateForbiddenException("Cannot update to this status. Open/close status update is allowed.");
             }
