@@ -1,5 +1,4 @@
 ﻿using DoorAccessApplication.Core.Exceptions;
-using DoorAccessApplication.Core.Extensions;
 using DoorAccessApplication.Core.Interfaces;
 using DoorAccessApplication.Core.Models;
 using DoorAccessApplication.Core.ValueTypes;
@@ -39,7 +38,7 @@ namespace DoorAccessApplication.Core.Services
             {
                 DateTime = DateTime.UtcNow,
                 UserId = userId,
-                Status = StatusType.Added
+                Status = StatusType.add
             };
 
             createLock.HistoryEntries.Add(historyEntry);
@@ -66,7 +65,7 @@ namespace DoorAccessApplication.Core.Services
             {
                 DateTime = DateTime.UtcNow,
                 UserId = userId,
-                Status = StatusType.Removed
+                Status = StatusType.remove
             };
 
             deleteLock.HistoryEntries.Add(historyEntry);
@@ -123,9 +122,10 @@ namespace DoorAccessApplication.Core.Services
 
         public async Task<Lock> UpdateStatusAsync(int lockId, string userId, string status)
         {
-            var newStatus = status.GetStatus();
+            var newStatus = GetStatus(status);
             
             var lockTool = await _lockRepository.GetAsync(lockId, userId);
+            
             if (lockTool == null)
             {
                 throw new EntityAddForbiddenException("Lock does not exist.");
@@ -135,7 +135,7 @@ namespace DoorAccessApplication.Core.Services
             {
                 throw new EntityUpdateForbiddenException("Cannot set the same status."); 
             }
-            lockTool.IsLocked = lockTool.IsLocked != true;
+            lockTool.Status = newStatus;
 
             lockTool.HistoryEntries.Add(new LockHistoryEntry()
             {
@@ -151,6 +151,20 @@ namespace DoorAccessApplication.Core.Services
         public async Task<List<LockHistoryEntry>> GetHistoryAsync(int lockId, string userId)
         {
             return await _lockHistoryRepository.GetHistoryAsync(lockId, userId);
+        }
+
+        private StatusType GetStatus(string status)
+        {
+            if (!Enum.TryParse(status.ToLower(), out StatusType myStatus))
+            {
+                throw new EntityUpdateForbiddenException("This status does not exist.");
+            }
+
+            if (myStatus.ToString() == "open" || myStatus.ToString() == "close")
+            {
+                throw new EntityUpdateForbiddenException("Cannot update to this status. Open/close status update is allowed.");
+            }
+            return myStatus;
         }
     }
 }

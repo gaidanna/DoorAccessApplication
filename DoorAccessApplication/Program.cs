@@ -21,35 +21,25 @@ AddServicesToContainer(builder);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    //app.UseSwagger()
-    //    .UseSwaggerUI(setup =>
-    //{
-    //    setup.SwaggerEndpoint("https://localhost:7224/swagger/v1/swagger.json", "LockAccess.API V1");
-    //    setup.OAuthClientId("swaggerui");
-    //    setup.OAuthAppName("Swagger UI");
-    //});
 }
 
+app.UseSwagger()
+    .UseSwaggerUI(setup =>
+    {
+        setup.SwaggerEndpoint($"{builder.Configuration["IdentityUrl"]}/swagger/v1/swagger.json", "LockAccess.API V1");
+        setup.OAuthClientId("swaggerui");
+        setup.OAuthAppName("Swagger UI");
+    });
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSwagger()
-        .UseSwaggerUI(setup =>
-        {
-            setup.SwaggerEndpoint("https://localhost:7224/swagger/v1/swagger.json", "LockAccess.API V1");
-            setup.OAuthClientId("swaggerui");
-            setup.OAuthAppName("Swagger UI");
-        });
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 
 using (var scope = app.Services.CreateScope())
@@ -57,7 +47,6 @@ using (var scope = app.Services.CreateScope())
     var dataContext = scope.ServiceProvider.GetRequiredService<DoorAccessDbContext>();
     dataContext.Database.Migrate();
 }
-
 
 app.MapControllers();
 
@@ -67,17 +56,45 @@ void AddServicesToContainer(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<DoorAccessDbContext>(options =>
         options.UseSqlServer(builder.Configuration["DbConnectionString"]));
+    
+    ConfigureControllers(builder.Services);
+    ConfigureSwagger(builder.Services);
+    //builder.Services.AddEndpointsApiExplorer();
+    ConfigureAuthService(builder.Services);
+    ConfigureBusService(builder.Services);
+    ConfigureCustomServices(builder.Services);
 
-    //builder.Services.AddControllers(options =>
-    //{
-    //    options.Filters.Add<UnhandledExceptionFilterAttribute>();
-    //}).AddFluentValidation(s =>
-    //    {
-    //        s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
-    //        s.DisableDataAnnotationsValidation = true;
-    //    });
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(options =>
+    builder.Services.AddAutoMapper(typeof(ApiAssemblyMarker), typeof(ICoreAssemblyMarker));
+}
+
+void ConfigureCustomServices(IServiceCollection services)
+{
+    builder.Services.AddScoped<ILockService, LockService>();
+    builder.Services.AddScoped<ILockRepository, LockRepository>();
+    builder.Services.AddScoped<ILockHistoryRepository, LockHistoryRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+}
+
+void ConfigureControllers(IServiceCollection services)
+{
+    services.AddControllers(options =>
+    {
+        options.Filters.Add<UnhandledExceptionFilterAttribute>();
+    })
+    .AddFluentValidation(s =>
+    {
+        s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
+        s.DisableDataAnnotationsValidation = true;
+    })
+    .AddJsonOptions(x =>
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+}
+
+void ConfigureSwagger(IServiceCollection services)
+{
+    services.AddSwaggerGen(options =>
     {
         options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
         {
@@ -86,8 +103,8 @@ void AddServicesToContainer(WebApplicationBuilder builder)
             {
                 Implicit = new OpenApiOAuthFlow()
                 {
-                    AuthorizationUrl = new Uri("https://localhost:7242/connect/authorize"),
-                    TokenUrl = new Uri("https://localhost:7242/connect/token"),
+                    AuthorizationUrl = new Uri($"{builder.Configuration["IdentityUrl"]}/connect/authorize"),
+                    TokenUrl = new Uri($"{builder.Configuration["IdentityUrl"]}/connect/token"),
                     Scopes = new Dictionary<string, string>()
                             {
                                 { "lockAccess", "Lock access API" }
@@ -98,40 +115,13 @@ void AddServicesToContainer(WebApplicationBuilder builder)
 
         options.OperationFilter<AuthorizeCheckOperationFilter>();
     });
-
-    ConfigureAuthService(builder.Services);
-
-    builder.Services.AddControllers(options =>
-    {
-        options.Filters.Add<UnhandledExceptionFilterAttribute>();
-    })
-    .AddFluentValidation(s =>
-    {
-        s.RegisterValidatorsFromAssemblyContaining<ApiAssemblyMarker>();
-        s.DisableDataAnnotationsValidation = true;
-    })
-    .AddJsonOptions(x => 
-    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-    ConfigureBusService(builder.Services);
-
-    builder.Services.AddScoped<ILockService, LockService>();
-    builder.Services.AddScoped<ILockRepository, LockRepository>();
-    builder.Services.AddScoped<ILockHistoryRepository, LockHistoryRepository>();
-    builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-
-    builder.Services.AddAutoMapper(typeof(ApiAssemblyMarker), typeof(ICoreAssemblyMarker));
-    
 }
-
 
 void ConfigureAuthService(IServiceCollection services)
 {
-    // prevent from mapping "sub" claim to nameidentifier.
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
-    var identityUrl = "https://localhost:7242";//Configuration.GetValue<string>("IdentityUrl");
+    var identityUrl = builder.Configuration["IdentityUrl"];
 
     services.AddAuthentication(options =>
     {

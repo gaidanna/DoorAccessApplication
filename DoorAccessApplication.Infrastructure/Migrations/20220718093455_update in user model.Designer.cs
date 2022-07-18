@@ -4,6 +4,7 @@ using DoorAccessApplication.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoorAccessApplication.Infrastructure.Migrations
 {
     [DbContext(typeof(DoorAccessDbContext))]
-    partial class DoorAccessDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220718093455_update in user model")]
+    partial class updateinusermodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -8,7 +8,6 @@ namespace DoorAccessApplication.Api.Filters
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            // Check for authorize attribute
             var hasAuthorize = context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() ||
                                 context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any();
 

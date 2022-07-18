@@ -11,6 +11,8 @@ namespace DoorAccessApplication.Api.Validators
                         .WithMessage("Id is required.");
             RuleFor(x => x.UniqueIdentifier).NotEmpty()
                                 .WithMessage("Unique Identifier is required.");
+            RuleFor(x => x.Status).NotEmpty()
+                                .WithMessage("Status is required.");
         }
     }
 }

@@ -5,6 +5,6 @@
         public int Id { get; set; }
         public string UniqueIdentifier { get; set; }
 
-        public bool IsLocked { get; set; }
+        public string Status { get; set; }
     }
 }
