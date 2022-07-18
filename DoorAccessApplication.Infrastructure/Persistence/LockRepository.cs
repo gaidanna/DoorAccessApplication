@@ -37,7 +37,6 @@ namespace DoorAccessApplication.Infrastructure.Persistence
 
         public async Task<List<Lock>> GetAllAsync(string userId)
         {
-            //var result = new List<Lock>();
             var locks = await _dbContext.Locks
                 .Where(e => e.Users.Any(l => l.Id == userId))
                 .Include(e => e.Users)
@@ -51,7 +50,6 @@ namespace DoorAccessApplication.Infrastructure.Persistence
         {
             return await _dbContext.Locks
                 .Include(e => e.Users)
-                //.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == lockId && e.Users.Any(l => l.Id == userId));
         }
 
@@ -59,6 +57,7 @@ namespace DoorAccessApplication.Infrastructure.Persistence
         {
             var result = await _dbContext.Locks
                 .FirstOrDefaultAsync(e => e.UniqueIdentifier == uniqueIdentifier);
+            
             return result != null;
         }
     }

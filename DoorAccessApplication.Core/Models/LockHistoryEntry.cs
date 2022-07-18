@@ -1,9 +1,4 @@
 ﻿using DoorAccessApplication.Core.ValueTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoorAccessApplication.Core.Models
 {
@@ -12,10 +7,7 @@ namespace DoorAccessApplication.Core.Models
         public int Id { get; set; }
         public int LockId { get; set; }
         public string UserId { get; set; }
-
         public DateTime DateTime { get; set; }
-
-        // create/delete/open/close Action
         public StatusType Status { get; set; }
 
     }
