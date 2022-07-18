@@ -88,33 +88,11 @@ namespace DoorAccessApplication.Ids
                 Description = "My API",
                 Scopes = new List<string> { "lockAccess" },
             }
-          //new ApiResource("weatherapi")
-          //{
-          //  Scopes = new List<string> {"weatherapi.read", "weatherapi.write"},
-          //  ApiSecrets = new List<Secret> {new Secret("ScopeSecret".Sha256())},
-          //  UserClaims = new List<string> {"role"}
-          //}
     };
 
         public static IEnumerable<Client> Clients =>
           new[]
           {
-            //  new Client
-            //{
-            //    ClientId = "client",
-
-            //    // no interactive user, use the clientid/secret for authentication
-            //    AllowedGrantTypes = GrantTypes.ClientCredentials,
-
-            //    // secret for authentication
-            //    ClientSecrets =
-            //    {
-            //        new Secret("secret".Sha256())
-            //    },
-
-            //    // scopes that client has access to
-            //    AllowedScopes = { "lockAceess" }
-            //},
               new Client
                 {
                     ClientId = "swaggerui",
@@ -133,42 +111,12 @@ namespace DoorAccessApplication.Ids
                 },
               new Client
                 {
-                    ClientId = "company",
+                    ClientId = "test",
                     ClientSecrets = new [] { new Secret("test".Sha512()) },
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,//.ResourceOwnerPasswordAndClientCredentials,
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, "lockAccess" },
                     AlwaysIncludeUserClaimsInIdToken = true,
               }
-        //// m2m client credentials flow client
-        //    new Client
-        //    {
-        //      ClientId = "m2m.client",
-        //      ClientName = "Client Credentials Client",
-
-        //      AllowedGrantTypes = GrantTypes.ClientCredentials,
-        //      ClientSecrets = {new Secret("SuperSecretPassword".Sha256())},
-
-        //      AllowedScopes = {"weatherapi.read", "weatherapi.write"}
-        //    },
-
-        //// interactive client using code flow + pkce
-        //    new Client
-        //    {
-        //      ClientId = "interactive",
-        //      ClientSecrets = {new Secret("SuperSecretPassword".Sha256())},
-
-        //      AllowedGrantTypes = GrantTypes.Code,
-
-        //      RedirectUris = {"https://localhost:5444/signin-oidc"},
-        //      FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
-        //      PostLogoutRedirectUris = {"https://localhost:5444/signout-callback-oidc"},
-
-        //      AllowOfflineAccess = true,
-        //      AllowedScopes = {"openid", "profile", "weatherapi.read"},
-        //      RequirePkce = true,
-        //      RequireConsent = true,
-        //      AllowPlainTextPkce = false
-        //    },
           };
     }
 }

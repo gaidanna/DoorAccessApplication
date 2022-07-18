@@ -4,7 +4,7 @@ namespace DoorAccessApplication.Core.Interfaces
 {
     public interface ILockService
     {
-        Task<Lock> AddAsync(Lock createLock, string userId);
+        Task<Lock> CreateAsync(Lock createLock, string userId);
         Task DeleteAsync(int lockId, string userId);
         Task<List<Lock>> GetAllAsync(string userId);
         Task<Lock> GetAsync(int lockId, string userId);

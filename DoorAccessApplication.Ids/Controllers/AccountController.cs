@@ -1,7 +1,6 @@
 ﻿using DoorAccessApplication.Ids.Interfaces;
 using DoorAccessApplication.Ids.Models;
 using DoorAccessApplication.Model;
-using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -11,13 +10,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Plain.RabbitMQ;
-using System.Security.Claims;
 
 namespace DoorAccessApplication.Ids.Controllers
 {
     public class AccountController : Controller
     {
-        //private readonly InMemoryUserLoginService _loginService;
         private readonly ILoginService<ApplicationUser> _loginService;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -28,7 +25,6 @@ namespace DoorAccessApplication.Ids.Controllers
 
         public AccountController(
 
-            //InMemoryUserLoginService loginService,
             ILoginService<ApplicationUser> loginService,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
@@ -46,13 +42,9 @@ namespace DoorAccessApplication.Ids.Controllers
             _publisher = publisher;
         }
 
-        /// <summary>
-        /// Show login page
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
-            
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null)
             {
@@ -66,9 +58,6 @@ namespace DoorAccessApplication.Ids.Controllers
             return View(vm);
         }
 
-        /// <summary>
-        /// Handle postback from username/password login
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -98,7 +87,6 @@ namespace DoorAccessApplication.Ids.Controllers
 
                     await _loginService.SignInAsync(user, props);
 
-                    // make sure the returnUrl is still valid, and if yes - redirect back to authorize endpoint
                     if (_interaction.IsValidReturnUrl(model.ReturnUrl))
                     {
                         return Redirect(model.ReturnUrl);
@@ -110,12 +98,69 @@ namespace DoorAccessApplication.Ids.Controllers
                 ModelState.AddModelError("", "Invalid username or password.");
             }
 
-            // something went wrong, show form with error
             var vm = await BuildLoginViewModelAsync(model);
 
             ViewData["ReturnUrl"] = model.ReturnUrl;
 
             return View(vm);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+                    var errors = ModelState
+            .Where(x => x.Value.Errors.Count > 0)
+            .Select(x => new { x.Key, x.Value.Errors })
+            .ToArray();
+
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    LastName = model.User.LastName,
+                    Name = model.User.Name,
+                };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Errors.Count() > 0)
+                {
+                    AddErrors(result);
+                    return View(model);
+                }
+
+                _publisher.Publish(JsonConvert.SerializeObject(new UserRequest
+                {
+                    Id = user.Id,
+                    LastName = user.LastName,
+                    Name = user.Name,
+                    Email = user.Email,
+                }), "identity.created", null);
+            }
+
+            if (returnUrl != null)
+            {
+                if (HttpContext.User.Identity.IsAuthenticated)
+                    return Redirect(returnUrl);
+                else
+                    if (ModelState.IsValid)
+                    return RedirectToAction("login", "account", new { returnUrl = returnUrl });
+                else
+                    return View(model);
+            }
+
+            return RedirectToAction("index", "home");
         }
 
         private async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl, AuthorizationRequest context)
@@ -144,175 +189,6 @@ namespace DoorAccessApplication.Ids.Controllers
             vm.Email = model.Email;
             vm.RememberMe = model.RememberMe;
             return vm;
-        }
-
-        /// <summary>
-        /// Show logout page
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> Logout(string logoutId)
-        {
-            if (User.Identity.IsAuthenticated == false)
-            {
-                // if the user is not authenticated, then just show logged out page
-                return await Logout(new LogoutViewModel { LogoutId = logoutId });
-            }
-
-            //Test for Xamarin. 
-            var context = await _interaction.GetLogoutContextAsync(logoutId);
-            if (context?.ShowSignoutPrompt == false)
-            {
-                //it's safe to automatically sign-out
-                return await Logout(new LogoutViewModel { LogoutId = logoutId });
-            }
-
-            // show the logout prompt. this prevents attacks where the user
-            // is automatically signed out by another malicious web page.
-            var vm = new LogoutViewModel
-            {
-                LogoutId = logoutId
-            };
-            return View(vm);
-        }
-
-        /// <summary>
-        /// Handle logout page postback
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout(LogoutViewModel model)
-        {
-            var idp = User?.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-
-            if (idp != null && idp != "local"/*IdentityServerConstants.LocalIdentityProvider*/)
-            {
-                if (model.LogoutId == null)
-                {
-                    // if there's no current logout context, we need to create one
-                    // this captures necessary info from the current logged in user
-                    // before we signout and redirect away to the external IdP for signout
-                    model.LogoutId = await _interaction.CreateLogoutContextAsync();
-                }
-
-                string url = "/Account/Logout?logoutId=" + model.LogoutId;
-
-                try
-                {
-
-                    // hack: try/catch to handle social providers that throw
-                    await HttpContext.SignOutAsync(idp, new AuthenticationProperties
-                    {
-                        RedirectUri = url
-                    });
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "LOGOUT ERROR: {ExceptionMessage}", ex.Message);
-                }
-            }
-
-            // delete authentication cookie
-            await HttpContext.SignOutAsync();
-
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-
-            // set this so UI rendering sees an anonymous user
-            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
-
-            // get context information (client name, post logout redirect URI and iframe for federated signout)
-            var logout = await _interaction.GetLogoutContextAsync(model.LogoutId);
-
-            return Redirect(logout?.PostLogoutRedirectUri);
-        }
-
-        public async Task<IActionResult> DeviceLogOut(string redirectUrl)
-        {
-            // delete authentication cookie
-            await HttpContext.SignOutAsync();
-
-            // set this so UI rendering sees an anonymous user
-            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
-
-            return Redirect(redirectUrl);
-        }
-
-        // GET: /Account/Register
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View();
-        }
-
-        //
-        // POST: /Account/Register
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-                    var errors = ModelState
-            .Where(x => x.Value.Errors.Count > 0)
-            .Select(x => new { x.Key, x.Value.Errors })
-            .ToArray();
-
-            if (ModelState.IsValid)
-            {
-                var user = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    //CardHolderName = model.User.CardHolderName,
-                    //CardNumber = model.User.CardNumber,
-                    //CardType = model.User.CardType,
-                    //City = model.User.City,
-                    //Country = model.User.Country,
-                    //Expiration = model.User.Expiration,
-                    LastName = model.User.LastName,
-                    Name = model.User.Name,
-                    //Street = model.User.Street,
-                    //State = model.User.State,
-                    //ZipCode = model.User.ZipCode,
-                    //PhoneNumber = model.User.PhoneNumber,
-                    //SecurityNumber = model.User.SecurityNumber
-                };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Errors.Count() > 0)
-                {
-                    AddErrors(result);
-                    // If we got this far, something failed, redisplay form
-                    return View(model);
-                }
-
-                _publisher.Publish(JsonConvert.SerializeObject(new UserRequest
-                {
-                    Id = user.Id,
-                    LastName = user.LastName,
-                    Name = user.Name,
-                    Email = user.Email,
-                }), "identity.created", null);
-            }
-
-            if (returnUrl != null)
-            {
-                if (HttpContext.User.Identity.IsAuthenticated)
-                    return Redirect(returnUrl);
-                else
-                    if (ModelState.IsValid)
-                    return RedirectToAction("login", "account", new { returnUrl = returnUrl });
-                else
-                    return View(model);
-            }
-
-            return RedirectToAction("index", "home");
-        }
-
-        [HttpGet]
-        public IActionResult Redirecting()
-        {
-            return View();
         }
 
         private void AddErrors(IdentityResult result)

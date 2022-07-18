@@ -17,7 +17,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-AddServicesToContainer(builder);
+ConfigureApplication(builder);
 
 var app = builder.Build();
 
@@ -29,7 +29,7 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger()
     .UseSwaggerUI(setup =>
     {
-        setup.SwaggerEndpoint($"{builder.Configuration["IdentityUrl"]}/swagger/v1/swagger.json", "LockAccess.API V1");
+        setup.SwaggerEndpoint("https://localhost:7224/swagger/v1/swagger.json", "LockAccess.API V1");
         setup.OAuthClientId("swaggerui");
         setup.OAuthAppName("Swagger UI");
     });
@@ -52,7 +52,7 @@ app.MapControllers();
 
 app.Run();
 
-void AddServicesToContainer(WebApplicationBuilder builder)
+void ConfigureApplication(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<DoorAccessDbContext>(options =>
         options.UseSqlServer(builder.Configuration["DbConnectionString"]));

@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model", "Model", "{FF411035
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DoorAccessApplication.Model", "DoorAccessApplication.Model\DoorAccessApplication.Model.csproj", "{252257D2-0D37-4AA9-9560-38B04EA7E1FA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EF8BFBDA-A3BA-4728-9746-2C5B6723680C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoorAccessApplication.Tests", "DoorAccessApplication.Tests\DoorAccessApplication.Tests.csproj", "{02E984A0-D609-40F7-858D-217AE01B642A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,10 @@ Global
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02E984A0-D609-40F7-858D-217AE01B642A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02E984A0-D609-40F7-858D-217AE01B642A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02E984A0-D609-40F7-858D-217AE01B642A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02E984A0-D609-40F7-858D-217AE01B642A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +63,7 @@ Global
 		{F0A2700B-6AA3-41D4-B043-F22033B1B48A} = {0864BD12-38E2-4DF6-BF9D-0513776B202C}
 		{AC3EEB6A-D006-4836-93E7-7414F8D8E945} = {17189860-893B-4019-8909-4DBCEF1A1804}
 		{252257D2-0D37-4AA9-9560-38B04EA7E1FA} = {FF411035-F014-49A0-AB26-8BAACE758CB2}
+		{02E984A0-D609-40F7-858D-217AE01B642A} = {EF8BFBDA-A3BA-4728-9746-2C5B6723680C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {35714DB6-3799-47D1-9616-67D3A0E19477}

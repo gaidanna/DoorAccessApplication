@@ -13,7 +13,7 @@ namespace DoorAccessApplication.Infrastructure.Persistence
             _dbContext = dbContext;
         }
 
-        public async Task<Lock> AddAsync(Lock createLock)
+        public async Task<Lock> CreateAsync(Lock createLock)
         {
             await _dbContext.Locks.AddAsync(createLock);
             await _dbContext.SaveChangesAsync();

@@ -30,7 +30,7 @@ namespace DoorAccessApplication.Api.Controllers
         {
             var lockTool = _mapper.Map<Lock>(createLockRequest);
 
-            var addedlock = await _lockService.AddAsync(lockTool, GetUserId());
+            var addedlock = await _lockService.CreateAsync(lockTool, GetUserId());
 
             var lockResponse = _mapper.Map<LockResponse>(addedlock);
             _logger.LogInformation($"Lock with Id: {lockResponse.Id} added.");

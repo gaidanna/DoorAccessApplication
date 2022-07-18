@@ -20,7 +20,7 @@ namespace DoorAccessApplication.Core.Services
             _lockHistoryRepository = lockHistoryRepository;
         }
 
-        public async Task<Lock> AddAsync(Lock createLock, string userId)
+        public async Task<Lock> CreateAsync(Lock createLock, string userId)
         {
             var user = await _userRepository.GetAsync(userId);
             if (user == null)
@@ -44,7 +44,7 @@ namespace DoorAccessApplication.Core.Services
             createLock.HistoryEntries.Add(historyEntry);
             try
             {
-                return await _lockRepository.AddAsync(createLock);
+                return await _lockRepository.CreateAsync(createLock);
             }
             catch (DbUpdateException)
             {
