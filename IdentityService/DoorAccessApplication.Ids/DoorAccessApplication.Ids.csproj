@@ -37,9 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
-    <ProjectReference Include="..\DoorAccessApplication.Infrastructure\DoorAccessApplication.Infrastructure.csproj" />
-    <ProjectReference Include="..\DoorAccessApplication.Model\DoorAccessApplication.Model.csproj" />
+    <ProjectReference Include="..\..\Application\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
+    <ProjectReference Include="..\..\Application\DoorAccessApplication.Infrastructure\DoorAccessApplication.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\DoorAccessApplication.Model\DoorAccessApplication.Model.csproj" />
   </ItemGroup>
 
 </Project>

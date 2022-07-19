@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\IdentityService\DoorAccessApplication.Ids\DoorAccessApplication.Ids.csproj" />
     <ProjectReference Include="..\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
-    <ProjectReference Include="..\DoorAccessApplication.Ids\DoorAccessApplication.Ids.csproj" />
     <ProjectReference Include="..\DoorAccessApplication.Infrastructure\DoorAccessApplication.Infrastructure.csproj" />
   </ItemGroup>
 

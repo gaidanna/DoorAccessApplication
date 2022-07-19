@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
     <ProjectReference Include="..\DoorAccessApplication.Core\DoorAccessApplication.Core.csproj" />
   </ItemGroup>
 

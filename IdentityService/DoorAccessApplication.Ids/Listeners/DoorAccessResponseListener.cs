@@ -9,12 +9,9 @@ namespace DoorAccessApplication.Ids.Listeners
     public class DoorAccessResponseListener : IHostedService
     {
         private readonly ISubscriber _subscriber;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public DoorAccessResponseListener(ISubscriber subscriber, 
-            UserManager<ApplicationUser> userManager)
+        public DoorAccessResponseListener(ISubscriber subscriber)
         {
             _subscriber = subscriber;
-            _userManager = userManager;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
